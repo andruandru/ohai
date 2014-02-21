@@ -167,7 +167,7 @@ module Ohai
         api_version = best_api_version
         return nil if api_version.nil?
         response = http_client.get("/#{api_version}/user-data/")
-        response.code == "200" ? response.body : nil
+        response.code == "200" ? response.body.force_encoding("utf-8").dump : nil
       end
 
       private
