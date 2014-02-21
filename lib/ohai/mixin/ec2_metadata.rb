@@ -19,6 +19,7 @@
 
 require 'net/http'
 require 'socket'
+require 'base64'
 
 module Ohai
   module Mixin
@@ -167,7 +168,16 @@ module Ohai
         api_version = best_api_version
         return nil if api_version.nil?
         response = http_client.get("/#{api_version}/user-data/")
-        response.code == "200" ? response.body.force_encoding("utf-8").dump : nil
+        if response.code == "200"
+          case response.header.content_type.downcase
+            when 'application/octet-stream'
+              Base64.encode64(response.body)
+            else
+              response.body
+          end
+        else
+          nil
+        end
       end
 
       private
